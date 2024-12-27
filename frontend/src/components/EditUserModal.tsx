@@ -7,7 +7,7 @@ interface User {
   addressLine1?: string;
   city?: string;
   country?: string;
-  money: string;
+  money: number;
 }
 
 interface Props {
@@ -18,7 +18,6 @@ interface Props {
 
 const EditUserModal: React.FC<Props> = ({ user, onClose, onSave }) => {
   const [updatedUser, setUpdatedUser] = useState<User>(user);
-  const [showNotification, setShowNotification] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,11 +27,6 @@ const EditUserModal: React.FC<Props> = ({ user, onClose, onSave }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     onSave(updatedUser);
-    setShowNotification(true); 
-  };
-
-  const handleCloseNotification = () => {
-    setShowNotification(false); 
   };
 
   return (
@@ -123,26 +117,6 @@ const EditUserModal: React.FC<Props> = ({ user, onClose, onSave }) => {
             </button>
           </div>
         </form>
-        {showNotification && (
-          <div className="mt-4 bg-green-200 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Success!</strong>
-            <span className="block sm:inline"> User updated successfully!</span>
-            <button
-              onClick={handleCloseNotification} 
-              className="absolute top-0 bottom-0 right-0 px-4 py-3"
-            >
-              <svg
-                className="fill-current h-6 w-6 text-green-500"
-                role="button"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <title>Close</title>
-                <path d="M14.354 5.646a.5.5 0 0 1 .708.708L10.707 10l4.354 4.354a.5.5 0 0 1-.708.708L10 10.707l-4.354 4.353a.5.5 0 1 1-.708-.708L9.293 10 4.94 5.646a.5.5 0 1 1 .708-.708L10 9.293l4.354-4.647z"></path>
-              </svg>
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

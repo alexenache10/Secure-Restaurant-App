@@ -48,30 +48,6 @@ const getAllUsers = async (req: Request, res: Response) => {
   
 
 
-const updateCurrentUser = async (req: Request, res: Response) => {
-    try {
-        const { name, addressLine1, country, city, money } = req.body;
-        const user = await User.findById(req.userId);
-
-        if (!user) {
-            return res.status(HTTP_NOT_FOUND).json({ message: "User not found!" });
-        }
-
-        user.name = name;
-        user.addressLine1 = addressLine1;
-        user.city = city;
-        user.country = country;
-        user.money = money;
-        await user.save();
-
-        res.send(user);
-    }
-    catch (error) {
-        console.log(error + 'TEST');
-        res.status(HTTP_INTERN_ERROR).json({ message: "Error updating user!" });
-    }
-};
-
 const updateCurrentUserClassic = async (req: Request, res: Response) => {
     try {
         const { email, name, addressLine1, country, city, money } = req.body;
@@ -79,7 +55,8 @@ const updateCurrentUserClassic = async (req: Request, res: Response) => {
         if (!email) {
             return res.status(HTTP_BAD_REQUEST).json({ message: "Email not provided" });
         }
-
+        
+        console.log('email=%s name=%s addressline1=%s money_str=%s money_int=%d', email,name,addressLine1, money, money);
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -158,34 +135,6 @@ const login = async (req: Request, res: Response) => {
     }
 };
 
-const adminUpdate = async (req: Request, res: Response) => {
-    try {
-        const { email, name, addressLine1, country, city } = req.body;
-
-        if (!email) {
-            return res.status(HTTP_BAD_REQUEST).json({ message: "Email not provided" });
-        }
-
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(HTTP_NOT_FOUND).json({ message: "User not found!" });
-        }
-
-        user.name = name;
-        user.addressLine1 = addressLine1;
-        user.city = city;
-        user.country = country;
-        
-        await user.save();
-
-        res.send(user);
-    }
-    catch (error) {
-        console.log(error + 'TEST');
-        res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: "Error updating user!" });
-    }
-};
 
 const adminDelete = async (req: Request, res: Response) => {
     try {
@@ -215,9 +164,7 @@ export default {
     getCurrentUserClassic,
     login,
     register,
-    updateCurrentUser,
     updateCurrentUserClassic,
     getAllUsers,
-    adminUpdate,
     adminDelete,
 };

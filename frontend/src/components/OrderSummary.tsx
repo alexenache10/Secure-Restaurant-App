@@ -19,8 +19,8 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
     );
 
     const totalWithDelivery = totalInPence + restaurant.deliveryPrice;
-    localStorage.setItem('order', ((totalWithDelivery / 100).toFixed(2)).toString());
-    return (totalWithDelivery / 100).toFixed(2);
+    localStorage.setItem('order', ((totalWithDelivery).toFixed(2)).toString());
+    return (totalWithDelivery).toFixed(2);
   };
 
   return (
@@ -47,14 +47,14 @@ const OrderSummary = ({ restaurant, cartItems, removeFromCart }: Props) => {
                 size={20}
                 onClick={() => removeFromCart(item)}
               />
-              {((item.price * item.quantity) / 100).toFixed(2)} LEI
+              {((item.price * item.quantity)).toFixed(2)} LEI
             </span>
           </div>
         ))}
         <Separator />
         <div className="flex justify-between">
           <span>Delivery</span>
-          <span>{(restaurant.deliveryPrice / 100).toFixed(2)} LEI</span>
+          <span>{(restaurant.deliveryPrice).toFixed(2)} LEI</span>
         </div>
         <Separator />
       </CardContent>

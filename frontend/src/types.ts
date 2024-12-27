@@ -4,7 +4,7 @@ export type User = {
   name: string;
   addressLine1: string;
   city: string;
-  money: string;
+  money: number;
   country: string;
 
 };
@@ -15,20 +15,20 @@ export type MenuItem = {
   price: number;
 };
 
-export type Restaurant = {
-  _id: string;
-  user: string;
+export interface Restaurant {
+  _id: string; // Adaugă această proprietate pentru a respecta structura de backend
   restaurantName: string;
   city: string;
   country: string;
   deliveryPrice: number;
   estimatedDeliveryTime: number;
   cuisines: string[];
-  menuItems: MenuItem[];
   imageUrl: string;
-  lastUpdated: string;
-};
-
+  lastUpdated: Date;
+  userEmail: string;
+  user: string; // Dacă este relevant pentru backend
+  menuItems: any[]; // Asum că este un array de obiecte pentru meniuri
+}
 
 export type Order = {
   _id: string;

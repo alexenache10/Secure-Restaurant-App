@@ -14,7 +14,7 @@ const ManageRestaurantPage = () => {
   const { updateRestaurant, isLoading: isUpdateLoading } = useUpdateMyRestaurant();
   const { orders } = useGetMyRestaurantOrders();
   const isEditing = !!restaurant;
-
+  console.log('starting to test...');
   return (
     
       <div className="min-h-screen bg-cover bg-fixed bg-opacity-70 bg-no-repeat bg-center"

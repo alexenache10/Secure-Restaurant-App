@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import EditUserModal from "./EditUserModal";
-import { useDeleteUser } from "@/api/MyUserApi";
+import { useDeleteUser, useAdminUpdateUser } from "@/api/MyUserApi";
+import { toast } from "sonner";
 
 interface User {
   email: string;
@@ -8,26 +9,31 @@ interface User {
   addressLine1?: string;
   city?: string;
   country?: string;
-  money: string;
+  money: number;
 }
 
 interface Props {
   users: User[];
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>;
 }
 
-const UserTable: React.FC<Props> = ({ users: initialUsers }) => {
-  const [users, setUsers] = useState<User[]>(initialUsers); // Stare locală pentru utilizatori
+const UserTable: React.FC<Props> = ({ users, setUsers }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const { deleteUser } = useDeleteUser();
+  const { updateAdminUser } = useAdminUpdateUser();
 
   const handleDeleteUser = async (email: string) => {
     if (window.confirm(`Are you sure you want to delete ${email}?`)) {
       try {
-        await deleteUser(email); // Apel API pentru ștergere
-        setUsers((prevUsers) => prevUsers.filter((user) => user.email !== email)); // Actualizează lista locală
+        await deleteUser(email);
+        setUsers((prevUsers) =>
+          prevUsers.filter((user) => user.email !== email)
+        );
+        toast.success("User deleted successfully!");
       } catch (error) {
         console.error("Failed to delete user:", error);
+        toast.error("Could not delete user!");
       }
     }
   };
@@ -36,8 +42,29 @@ const UserTable: React.FC<Props> = ({ users: initialUsers }) => {
     setSelectedUser(user);
   };
 
-  const handleSaveUser = (updatedUser: User) => {
-    console.log("Saving user... (TBD)", updatedUser);
+  const handleSaveUser = async (updatedUser: User) => {
+    try {
+      await updateAdminUser({
+        formData: {
+          name: updatedUser.name || "",
+          addressLine1: updatedUser.addressLine1 || "",
+          city: updatedUser.city || "",
+          country: updatedUser.country || "",
+          money: updatedUser.money || 0,
+        },
+        email: updatedUser.email,
+      });
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.email === updatedUser.email ? updatedUser : user
+        )
+      );
+      toast.success("User updated successfully!");
+      setSelectedUser(null);
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      toast.error("Could not update user!");
+    }
   };
 
   return (
@@ -62,12 +89,20 @@ const UserTable: React.FC<Props> = ({ users: initialUsers }) => {
               <td className="px-2 py-2">{user.addressLine1 || "N/A"}</td>
               <td className="px-2 py-2">{user.city || "N/A"}</td>
               <td className="px-2 py-2">{user.country || "N/A"}</td>
-              <td className="px-2 py-2">{user.money || "N/A"}</td>
+              <td className="px-2 py-2">{Number(user.money).toFixed(2) || "N/A"}</td>
               <td className="px-2 py-2">
-                <button onClick={() => handleEditUser(user)} className="mr-2">
+                <button
+                  onClick={() => handleEditUser(user)}
+                  className="mr-2 text-blue-500 hover:underline"
+                >
                   Edit
                 </button>
-                <button onClick={() => handleDeleteUser(user.email)}>Delete</button>
+                <button
+                  onClick={() => handleDeleteUser(user.email)}
+                  className="text-red-500 hover:underline"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}

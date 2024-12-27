@@ -27,6 +27,7 @@ router.get(
   RestaurantController.searchRestaurant
 );
 
+router.put("/update", RestaurantController.updateRestaurant);
 router.post("/", RestaurantController.processOrder);
 router.delete("/delete", RestaurantController.deleteRestaurantByUserEmail);
 export default router;

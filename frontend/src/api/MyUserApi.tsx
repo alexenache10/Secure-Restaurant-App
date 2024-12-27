@@ -52,6 +52,7 @@ type UpdateMyUserRequest = {
     addressLine1: string;
     city: string;
     country: string;
+    money: number;
 }
 
 
@@ -105,6 +106,44 @@ export const useUpdateClassicUser = () => {
 
   return { updateClassicUser, classicLoading };
 };
+
+
+export const useAdminUpdateUser = () => {
+  const updateAdminUserRequest = async ({ formData, email }: { formData: UpdateMyUserRequest; email: string }) => {
+    if (!email) {
+      throw new Error("User email not provided!");
+    }
+    console.log(formData);
+      const updatedFormData = { 
+    ...formData, 
+    email,
+    money: formData.money ?? 0 
+  };
+      
+    const response = await fetch(`${API_BASE_URL}/api/my/user/update`, { 
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedFormData),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to update user. Server response:", response);
+      throw new Error("Failed to update user");
+    }
+    return response.json();
+  };
+
+  const {
+    mutateAsync: updateAdminUser,
+    isLoading: adminLoading,
+  } = useMutation(updateAdminUserRequest);
+
+
+  return { updateAdminUser, adminLoading };
+};
+
 
 
   export const useClassicRegister = () => {

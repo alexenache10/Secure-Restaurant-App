@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-
-interface Restaurant {
-  restaurantName: string;
-  city: string;
-  country: string;
-  deliveryPrice: number;
-  estimatedDeliveryTime: number;
-  cuisines: string[];
-  imageUrl: string;
-  lastUpdated: Date;
-  userEmail: string;
-}
+import { Restaurant } from '../types'; // Importă tipul Restaurant din fișierul types.ts
 
 interface Props {
   restaurant: Restaurant;
@@ -23,7 +12,10 @@ const EditRestaurantModal: React.FC<Props> = ({ restaurant, onClose, onSave }) =
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUpdatedRestaurant({ ...updatedRestaurant, [name]: value });
+    setUpdatedRestaurant((prevRestaurant) => ({
+      ...prevRestaurant,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -46,7 +38,7 @@ const EditRestaurantModal: React.FC<Props> = ({ restaurant, onClose, onSave }) =
               type="text"
               name="restaurantName"
               value={updatedRestaurant.restaurantName}
-              onChange={handleChange}
+              onChange={handleChange}  // Adăugat onChange
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
@@ -63,54 +55,59 @@ const EditRestaurantModal: React.FC<Props> = ({ restaurant, onClose, onSave }) =
               disabled
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700 font-bold mb-2">
               Delivery price:
             </label>
             <input
-              type="text"
+              type="number"  // Schimbat pentru a fi un câmp numeric
               name="deliveryPrice"
-              value={updatedRestaurant.deliveryPrice/100}
+              value={updatedRestaurant.deliveryPrice}  // Afișează prețul împărțit la 100
+              onChange={handleChange}  // Adăugat onChange
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700 font-bold mb-2">
-             Country:
+              Country:
             </label>
             <input
               type="text"
               name="country"
               value={updatedRestaurant.country}
+              onChange={handleChange}  // Adăugat onChange
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700 font-bold mb-2">
-             City:
+              City:
             </label>
             <input
               type="text"
               name="city"
               value={updatedRestaurant.city}
+              onChange={handleChange}  // Adăugat onChange
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700 font-bold mb-2">
-             Cuisines:
+              Cuisines:
             </label>
             <input
               type="text"
               name="cuisines"
               value={updatedRestaurant.cuisines}
+              onChange={handleChange}  // Adăugat onChange
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              
             />
           </div>
+
           <div className="flex justify-end">
             <button
               type="submit"

@@ -18,11 +18,18 @@ interface Restaurant {
   userEmail: string;
 }
 
+interface User {
+  email: string;
+  name?: string;
+  addressLine1?: string;
+  city?: string;
+  country?: string;
+  money: number;
+}
+
 const AdminPage = () => {
   const [currentTab, setCurrentTab] = useState('users');
-  const [users, setUsers] = useState([]);
-  
-  // Specificăm tipul pentru restaurants
+  const [users, setUsers] = useState<User[]>([]);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
 
   useEffect(() => {
@@ -49,24 +56,46 @@ const AdminPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-opacity-20 py-10" style={{ backgroundImage: `url(${backgroundImage})` }}>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-opacity-20 py-10"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       <div className="bg-white bg-opacity-95 shadow-xl rounded-lg p-10 max-w-6xl w-full">
-        <h1 className="text-3xl mb-8 text-center font-bold text-gray-700">Administration Page</h1>
+        <h1 className="text-3xl mb-8 text-center font-bold text-gray-700">
+          Administration Page
+        </h1>
         <div className="flex border-b">
-          <button 
-            onClick={() => setCurrentTab('users')} 
-            className={`mr-4 pb-2 font-semibold ${currentTab === 'users' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}>
+          <button
+            onClick={() => setCurrentTab('users')}
+            className={`mr-4 pb-2 font-semibold ${
+              currentTab === 'users'
+                ? 'border-b-2 border-blue-500 text-blue-500'
+                : 'text-gray-500'
+            }`}
+          >
             Users
           </button>
-          <button 
-            onClick={() => setCurrentTab('restaurants')} 
-            className={`pb-2 font-semibold ${currentTab === 'restaurants' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}>
+          <button
+            onClick={() => setCurrentTab('restaurants')}
+            className={`pb-2 font-semibold ${
+              currentTab === 'restaurants'
+                ? 'border-b-2 border-blue-500 text-blue-500'
+                : 'text-gray-500'
+            }`}
+          >
             Restaurants
           </button>
         </div>
         <div className="mt-6">
-          {currentTab === 'users' && <UserTable users={users} />}
-          {currentTab === 'restaurants' && <RestaurantTable restaurants={restaurants} setRestaurants={setRestaurants} />}
+          {currentTab === 'users' && (
+            <UserTable users={users} setUsers={setUsers} />
+          )}
+          {currentTab === 'restaurants' && (
+            <RestaurantTable
+              restaurants={restaurants}
+              setRestaurants={setRestaurants}
+            />
+          )}
         </div>
       </div>
     </div>

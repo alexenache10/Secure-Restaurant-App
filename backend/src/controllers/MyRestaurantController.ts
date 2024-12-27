@@ -34,7 +34,7 @@ const createMyRestaurant = async (req: Request, res: Response) => {
     }
 
     const imageUrl = await uploadImage(req.file as Express.Multer.File);
-    
+
     const restaurant = new Restaurant({ ...req.body, imageUrl, userEmail: req.query.userEmail });
     
     restaurant.lastUpdated = new Date();
@@ -51,6 +51,7 @@ const updateMyRestaurant = async (req: Request, res: Response) => {
     const userEmail = req.query.userEmail as string;
     const restaurant = await Restaurant.findOne({ userEmail });
 
+    //console.log('SERVER: update restaurant pt %s\n', userEmail);
     if (!restaurant) {
       return res.status(HTTP_NOT_FOUND).json({ message: "restaurant not found" });
     }

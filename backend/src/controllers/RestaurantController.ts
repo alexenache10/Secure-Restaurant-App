@@ -189,10 +189,38 @@ const deleteRestaurantByUserEmail = async (req: Request, res: Response) => {
   }
 };
 
+const updateRestaurant = async (req: Request, res: Response) => {
+  try {
+    const userEmail = req.query.userEmail as string;
+    const restaurant = await Restaurant.findOne({ userEmail });
+
+    if (!restaurant) {
+      return res.status(HTTP_NOT_FOUND).json({ message: "Restaurant not found" });
+    }
+
+    // Actualizarea restaurantului cu datele trimise în body (care sunt acum JSON)
+    restaurant.restaurantName = req.body.restaurantName;
+    restaurant.deliveryPrice = req.body.deliveryPrice;
+    restaurant.country = req.body.country;
+    restaurant.city = req.body.city;
+    restaurant.cuisines = req.body.cuisines;
+    restaurant.imageUrl = req.body.imageUrl;  // Dacă ai nevoie să actualizezi și imaginea
+    restaurant.lastUpdated = new Date();
+
+    await restaurant.save();
+    res.status(HTTP_OK).send(restaurant);
+  } catch (error) {
+    console.log("error", error);
+    res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: "Something went wrong" });
+  }
+};
+
+
 export default {
   deleteRestaurantByUserEmail,
   getRestaurant,
   searchRestaurant,
+  updateRestaurant,
   getAllRestaurants,
   processOrder,
 };
