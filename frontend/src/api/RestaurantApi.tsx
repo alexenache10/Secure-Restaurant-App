@@ -3,11 +3,18 @@ import { Restaurant, RestaurantSearchResponse } from "@/types";
 import { useMutation, useQuery } from "react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("jwtToken");
+  return {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
 
 export const useGetRestaurant = (restaurantId?: string) => {
   const getRestaurantByIdRequest = async (): Promise<Restaurant> => {
     const response = await fetch(
-      `${API_BASE_URL}/api/restaurant/${restaurantId}`
+      `${API_BASE_URL}/api/restaurant/${restaurantId}`, { headers: getAuthHeaders()}
     );
 
     if (!response.ok) {
@@ -40,7 +47,7 @@ export const useSearchRestaurants = (
     params.set("sortOption", searchState.sortOption);
 
     const response = await fetch(
-      `${API_BASE_URL}/api/restaurant/search/${city}?${params.toString()}`
+      `${API_BASE_URL}/api/restaurant/search/${city}?${params.toString()}`, { headers: getAuthHeaders()}
     );
 
     if (!response.ok) {
@@ -63,7 +70,7 @@ export const useSearchRestaurants = (
 };
 
 export const getAllRestaurants = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/restaurant/all`);
+  const response = await fetch(`${API_BASE_URL}/api/restaurant/all`, { headers: getAuthHeaders()});
   if (!response.ok) {
     throw new Error("Failed to fetch restaurants");
   }
@@ -73,9 +80,7 @@ export const getAllRestaurants = async () => {
 export const deleteRestaurantByUserEmail = async (userEmail: string): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/api/restaurant/delete`, {
     method: "DELETE",  // Metoda DELETE
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ userEmail }),
   });
 
@@ -92,15 +97,13 @@ export const useUpdateRestaurant = () => {
     if (!userEmail) {
       throw new Error("User email is required to update the restaurant");
     }
-    console.log(updatedRestaurant);  // Verificăm ce trimitem
+  
 
     const response = await fetch(
       `${API_BASE_URL}/api/restaurant/update?userEmail=${userEmail}`,
       {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json", // Setăm Content-Type pentru JSON
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(updatedRestaurant), // Trimitem obiectul restaurant ca JSON
       }
     );

@@ -1,14 +1,15 @@
 import express from "express";
 import MyUserController from "../controllers/MyUserController";
-import { validateMyUserRequest } from "../middleware/validation";
-import { validateRegisterRequest, validateLoginRequest } from "../middleware/validation";
+import { verifyJWT } from "../middleware/verifyJWT";
 
 const router = express.Router();
 
-router.get("/data",  MyUserController.getAllUsers); 
-router.get("/classic",MyUserController.getCurrentUserClassic);
-router.put("/update", validateMyUserRequest, MyUserController.updateCurrentUserClassic);
-router.post("/register", validateRegisterRequest, MyUserController.register);
+router.get("/data", verifyJWT, MyUserController.getAllUsers);
+router.get("/classic", verifyJWT, MyUserController.getCurrentUserClassic);
+router.put("/update", verifyJWT, MyUserController.updateCurrentUserClassic);
+router.delete("/delete", verifyJWT, MyUserController.adminDelete);
+
+router.post("/register", MyUserController.register);
 router.post("/login", MyUserController.login);
-router.delete("/delete", MyUserController.adminDelete);
+
 export default router;

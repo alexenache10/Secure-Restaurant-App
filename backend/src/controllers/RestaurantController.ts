@@ -148,7 +148,6 @@ const processOrder = async (req: Request, res: Response) => {
       res.status(HTTP_OK).json({ message: "Order processed successfully", order: newOrder, estimatedDeliveryTime: restaurant.estimatedDeliveryTime});
     } catch (orderSaveError) {
       if (orderSaveError instanceof Error) {
-        console.error("Failed to save order:", orderSaveError.message);
         res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: "Failed to save the order", error: orderSaveError.message });
       } else {
         console.error("An unexpected error occurred:", orderSaveError);
@@ -165,6 +164,12 @@ const processOrder = async (req: Request, res: Response) => {
 const deleteRestaurantByUserEmail = async (req: Request, res: Response) => {
   try {
     const { userEmail } = req.body; 
+
+    const role = (req as any).user.role;
+    if(role != 'Admin')
+    {
+      return res.status(403).json({ message: "Forbidden: Admins only" });
+    }
 
     if (!userEmail) {
       return res.status(HTTP_BAD_REQUEST).json({ message: "userEmail is required" });
@@ -193,6 +198,14 @@ const updateRestaurant = async (req: Request, res: Response) => {
   try {
     const userEmail = req.query.userEmail as string;
     const restaurant = await Restaurant.findOne({ userEmail });
+    const email = (req as any).user.email;
+    const role = (req as any).user.role;
+    
+    if( role!= 'Admin' && userEmail != email)
+    {
+      return res.status(403).json({ message: "Forbidden access" });
+    }
+
 
     if (!restaurant) {
       return res.status(HTTP_NOT_FOUND).json({ message: "Restaurant not found" });

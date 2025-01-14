@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
 import Layout from "./layout/layout";
 import HomePage from "./pages/HomePage";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -13,9 +14,46 @@ import ManageRestaurantPage from "./pages/ManageRestaurantPage";
 import SearchPage from "./pages/SearchPage";
 import DetailPage from "./pages/DetailPage";
 
+type DecodedToken = {
+  role: string; // Rolul utilizatorului (Admin, Classic, etc.)
+  exp: number; // Data expirării token-ului
+};
+
+const isAdmin = (): boolean => {
+  const token = localStorage.getItem("jwtToken");
+
+  if (!token) {
+    return false; // Nu există token
+  }
+
+  try {
+    const decoded = jwtDecode<DecodedToken>(token);
+
+    // Verifică dacă rolul este Admin
+    if (decoded.role === "Admin") {
+      // Verifică și dacă token-ul a expirat
+      const currentTime = Date.now() / 1000; // Timpul actual în secunde
+      if (decoded.exp > currentTime) {
+        return true;
+      } else {
+        console.error("Token expired.");
+      }
+    }
+  } catch (error) {
+    console.error("Invalid token:", error);
+  }
+
+  return false;
+};
+
+const AdminProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  if (isAdmin()) {
+    return children;
+  }
+  return <Navigate to="/not-found" />;
+};
+
 const AppRoutes = () => {
-
-
   return (
     <Routes>
       <Route
@@ -26,7 +64,7 @@ const AppRoutes = () => {
           </Layout>
         }
       />
-  
+
       <Route
         path="/search/:city"
         element={
@@ -43,8 +81,9 @@ const AppRoutes = () => {
           </Layout>
         }
       />
+
       <Route element={<ProtectedRoute />}>
-        {/* Protected routes here */}
+        {/* Protected routes */}
         <Route
           path="/user-profile"
           element={
@@ -81,17 +120,17 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Conditionally render AdminPage based on isAdmin */}
-
-        <Route
-          path="/admin"
-          element={
+      {/* Admin-protected route */}
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
             <Layout_User>
               <AdminPage />
             </Layout_User>
-          }
-        />
-    
+          </AdminProtectedRoute>
+        }
+      />
 
       <Route
         path="/contact"

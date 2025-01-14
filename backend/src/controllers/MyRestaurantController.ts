@@ -12,6 +12,7 @@ const HTTP_NOT_FOUND = 404;
 const getMyRestaurant = async (req: Request, res: Response) => {
   try {
     const userEmail = req.query.userEmail as string;
+ 
     const restaurant = await Restaurant.findOne({ userEmail });
     if (!restaurant) {
       return res.status(HTTP_NOT_FOUND).json({ message: "restaurant not found" });
@@ -25,8 +26,14 @@ const getMyRestaurant = async (req: Request, res: Response) => {
 
 const createMyRestaurant = async (req: Request, res: Response) => {
   try {
-    const existingRestaurant = await Restaurant.findOne({ userEmail: req.query.userEmail });
+    const email = (req as any).user.email;
 
+    if (email !== req.query.userEmail) {
+        return res.status(403).json({ message: "You can create just a restaurant!" });
+    }
+
+
+    const existingRestaurant = await Restaurant.findOne({ userEmail: req.query.userEmail });
     if (existingRestaurant) {
       return res
         .status(409)
@@ -51,7 +58,11 @@ const updateMyRestaurant = async (req: Request, res: Response) => {
     const userEmail = req.query.userEmail as string;
     const restaurant = await Restaurant.findOne({ userEmail });
 
-    //console.log('SERVER: update restaurant pt %s\n', userEmail);
+    const email = (req as any).user.email;
+    const role = (req as any).user.role;
+    if (email !== req.query.userEmail && role != 'Admin') {
+        return res.status(403).json({ message: "Forbidden" });
+    }
     if (!restaurant) {
       return res.status(HTTP_NOT_FOUND).json({ message: "restaurant not found" });
     }
@@ -85,6 +96,11 @@ const getMyRestaurantOrders = async (req: Request, res: Response) => {
     const userEmail = req.query.userEmail as string;
     const restaurant = await Restaurant.findOne({ userEmail });
 
+    const email = (req as any).user.email;
+
+    if (email !== req.query.userEmail) {
+        return res.status(403).json({ message: "You can see just yours restaurant orders!" });
+    }
     if (!restaurant) {
       return res.status(HTTP_NOT_FOUND).json({ message: "restaurant not found" });
     }

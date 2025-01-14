@@ -12,69 +12,72 @@ const HTTP_NOT_FOUND = 404;
 export const HTTP_BAD_REQUEST = 400;
 export const HTTP_UNAUTHORIZATE = 401;
 
-const generateRandomKey = () => {
-  return crypto.randomBytes(16).toString('hex');
-};
+const JWT_SECRET_KEY = "secret_key";
 
 
 const getCurrentUserClassic = async (req: Request, res: Response) => {
     try {
-        const email = req.query.email as string; 
-        const currentUser = await User.findOne({ email: email }); 
-        
+        const email = (req as any).user.email; 
+        const currentUser = await User.findOne({ email });
+
         if (!currentUser) {
-            return res.status(HTTP_NOT_FOUND).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
-        
+
         res.json(currentUser);
     } catch (error) {
-        console.log(error);
-        return res.status(HTTP_INTERN_ERROR).json({ message: "Something went wrong" });
+        console.error("Error fetching user:", error);
+        return res.status(500).json({ message: "Something went wrong" });
     }
 };
 
-const JWT_SECRET_KEY = generateRandomKey(); 
 
 
 const getAllUsers = async (req: Request, res: Response) => {
     try {
-      const users = await User.find({}, { _id: 0, __v: 0 }); 
-      res.status(HTTP_OK).json({ users });
+        const userRole = (req as any).user.role;
+        if (userRole !== "Admin") {
+            return res.status(403).json({ message: "Forbidden: Admins only" });
+        }
+
+        const users = await User.find({}, { _id: 0, __v: 0 });
+        res.status(200).json({ users });
     } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: "Error fetching users" });
+        console.error("Error fetching users:", error);
+        res.status(500).json({ message: "Error fetching users" });
     }
-  };
-  
+};
 
 
 const updateCurrentUserClassic = async (req: Request, res: Response) => {
     try {
-        const { email, name, addressLine1, country, city, money } = req.body;
-
-        if (!email) {
-            return res.status(HTTP_BAD_REQUEST).json({ message: "Email not provided" });
-        }
+        const senderEmail = (req as any).user.email;
+        const userRole = (req as any).user.role;
+        const { name, addressLine1, country, city, money, email } = req.body;
         
-        console.log('email=%s name=%s addressline1=%s money_str=%s money_int=%d', email,name,addressLine1, money, money);
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(HTTP_NOT_FOUND).json({ message: "User not found!" });
+        if(userRole != 'Admin') 
+        {
+            if(senderEmail != email) // poti update doar tie insuti
+            {
+                return res.status(403).json({ message: "Forbidden: Admins only" });
+            }
         }
-
-        user.name = name;
-        user.addressLine1 = addressLine1;
-        user.city = city;
-        user.country = country;
-        user.money = money;
+        const user = await User.findOne({ email });
+       
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+        user.name = name || user.name;
+        user.addressLine1 = addressLine1 || user.addressLine1;
+        user.city = city || user.city;
+        user.country = country || user.country;
+        user.money = money || user.money;
         await user.save();
 
-        res.send(user);
-    }
-    catch (error) {
-        console.log(error + 'TEST');
-        res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: "Error updating user!" });
+        res.status(200).json(user);
+    } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ message: "Error updating user!" });
     }
 };
 
@@ -104,61 +107,62 @@ const register = async (req: Request, res: Response) => {
     }
 };
 
-
 const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
         const user = await User.findOne({ email });
-
         if (!user) {
             return res.status(HTTP_NOT_FOUND).json({ message: "Invalid credentials" });
         }
 
-        if (!user.password) {
-            return res.status(HTTP_UNAUTHORIZATE).json({ message: "Password not set" });
-        }
-
         const isPasswordValid = await argon2.verify(user.password, password);
-
         if (!isPasswordValid) {
-            return res.status(HTTP_UNAUTHORIZATE).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ userId: user._id }, JWT_SECRET_KEY, { expiresIn: "1h" });
+        // Generăm tokenul JWT
+        const token = jwt.sign(
+            {
+                userId: user._id,
+                email: user.email,
+                role: user.accountType, // Rolul utilizatorului
+            },
+            JWT_SECRET_KEY,
+            { expiresIn: "1h" } // Valabilitate de 1 oră
+        );
 
-        res.status(HTTP_OK).json({ token, accountType: user.accountType });
-
+        res.status(HTTP_OK).json({
+            token,
+            accountType: user.accountType,
+            message: "Login successful",
+        });
     } catch (error) {
-        console.log(error);
+        console.error("Login error:", error);
         res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: "Error logging in" });
     }
 };
 
-
 const adminDelete = async (req: Request, res: Response) => {
     try {
-        const { email } = req.body;
-
-        if (!email) {
-            return res.status(HTTP_BAD_REQUEST).json({ message: "Email not provided" });
+        const userRole = (req as any).user.role;
+        if (userRole !== "Admin") {
+            return res.status(403).json({ message: "Forbidden: Admins only" });
         }
 
+        const { email } = req.body;
         const user = await User.findOne({ email });
-
         if (!user) {
-            return res.status(HTTP_NOT_FOUND).json({ message: "User not found!" });
+            return res.status(404).json({ message: "User not found!" });
         }
 
         await User.deleteOne({ email });
-
-        res.status(HTTP_OK).json({ message: "User deleted successfully" });
+        res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
-        console.log(error);
-        res.status(HTTP_INTERNAL_SERVER_ERROR).json({ message: "Error deleting user" });
+        console.error("Error deleting user:", error);
+        res.status(500).json({ message: "Error deleting user" });
     }
 };
-
 
 export default {
     getCurrentUserClassic,

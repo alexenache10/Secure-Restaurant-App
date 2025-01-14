@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import useClassicLogin from "../../api/MyUserApi";
+import {useClassicLogin} from "../../api/MyUserApi";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 
@@ -37,7 +37,7 @@ const LoginForm = () => {
       <div className="max-w-md w-full space-y-8 bg-white bg-opacity-90 rounded-lg p-8">
         <div className="flex flex-col items-center">
           <img className="h-16 w-auto mb-4" src={logo} alt="Logo" />
-          <h2 className="text-3xl font-extrabold text-gray-900">Log in with Classic</h2>
+          <h2 className="text-3xl font-extrabold text-gray-900">Log in</h2>
         </div>
         <Formik initialValues={{ email: "", password: "" }} validationSchema={validationSchema} onSubmit={handleSubmit}>
           <Form className="mt-8 space-y-6">

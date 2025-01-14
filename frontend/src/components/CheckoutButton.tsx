@@ -21,10 +21,12 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ cartItems, restaurantNa
     }
 
       try {
+        const token = localStorage.getItem("jwtToken");
       const response = await fetch(`${API_BASE_URL}/api/restaurant/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           userEmail,

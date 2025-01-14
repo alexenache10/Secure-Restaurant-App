@@ -1,14 +1,15 @@
 import express from "express";
 import { param } from "express-validator";
 import RestaurantController from "../controllers/RestaurantController";
+import { verifyJWT } from "../middleware/verifyJWT";
 
 const router = express.Router();
 
 
-router.get('/all', RestaurantController.getAllRestaurants);
+router.get('/all', verifyJWT, RestaurantController.getAllRestaurants);
 
 router.get(
-  "/:restaurantId",
+  "/:restaurantId", verifyJWT,
   param("restaurantId")
     .isString()
     .trim()
@@ -18,7 +19,7 @@ router.get(
 );
 
 router.get(
-  "/search/:city",
+  "/search/:city", verifyJWT,
   param("city")
     .isString()
     .trim()
@@ -27,7 +28,7 @@ router.get(
   RestaurantController.searchRestaurant
 );
 
-router.put("/update", RestaurantController.updateRestaurant);
-router.post("/", RestaurantController.processOrder);
-router.delete("/delete", RestaurantController.deleteRestaurantByUserEmail);
+router.put("/update", verifyJWT, RestaurantController.updateRestaurant);
+router.post("/", verifyJWT, RestaurantController.processOrder);
+router.delete("/delete",verifyJWT, RestaurantController.deleteRestaurantByUserEmail);
 export default router;

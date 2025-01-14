@@ -4,16 +4,26 @@ import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const API_BACKEND = 'http://172.30.82.238:7000'
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("jwtToken");
+  return {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
+
+
+
 export const useGetMyRestaurant = () => {
   const getMyRestaurantRequest = async (): Promise<Restaurant> => {
 
     const userEmail = localStorage.getItem('userEmail');
 
-    const response = await fetch(`${API_BASE_URL}/api/my/restaurant?userEmail=${userEmail}`, {
+    const response = await fetch(`${API_BACKEND}/api/my/restaurant?userEmail=${userEmail}`, {
       method: "GET",
-      headers: {
-
-      },
+      headers: getAuthHeaders(),
     }); 
 
     if (!response.ok) {
@@ -36,14 +46,13 @@ export const useCreateMyRestaurant = () => {
   const createMyRestaurantRequest = async (
     restaurantFormData: FormData
   ): Promise<Restaurant> => {
-
     const userEmail = localStorage.getItem('userEmail');
-
-    const response = await fetch(`${API_BASE_URL}/api/my/restaurant?userEmail=${userEmail}`, {
+    const token = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_BACKEND}/api/my/restaurant?userEmail=${userEmail}`, {
       method: "POST",
       headers: {
-
-      },
+        Authorization: `Bearer ${token}`,
+    },
       body: restaurantFormData,
     });
 
@@ -73,15 +82,19 @@ export const useCreateMyRestaurant = () => {
 };
 
 export const useUpdateMyRestaurant = () => {
+  const token = localStorage.getItem("jwtToken");
   const updateRestaurantRequest = async (
     restaurantFormData: FormData
   ): Promise<Restaurant> => {
     const userEmail = localStorage.getItem('userEmail');
-    const response = await fetch(`${API_BASE_URL}/api/my/restaurant?userEmail=${userEmail}`, {
-      method: "PUT",
-      headers: {},
-      body: restaurantFormData,
-    });
+  const response = await fetch(`${API_BACKEND}/api/my/restaurant?userEmail=${userEmail}`, {
+    method: "PUT",
+    body: restaurantFormData,
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+});
+
 
     if (!response.ok) {
       throw new Error("Failed to update restaurant");
@@ -110,9 +123,9 @@ export const useUpdateMyRestaurant = () => {
 export const useGetMyRestaurantOrders = () => {
   const userEmail = localStorage.getItem('userEmail');
   const getMyRestaurantOrdersRequest = async (): Promise<Order[]> => {
-    const response = await fetch(`${API_BASE_URL}/api/my/restaurant/order?userEmail=${userEmail}`, {
+    const response = await fetch(`${API_BACKEND}/api/my/restaurant/order?userEmail=${userEmail}`, {
       method: "GET",
-      headers: {},
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -144,12 +157,10 @@ export const useUpdateMyRestaurantOrder = () => {
 
 
     const response = await fetch(
-      `${API_BASE_URL}/api/my/restaurant/order/${updateStatusOrderRequest.orderId}/status`,
+      `${API_BACKEND}/api/my/restaurant/order/${updateStatusOrderRequest.orderId}/status`,
       {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: updateStatusOrderRequest.status }),
       }
     );

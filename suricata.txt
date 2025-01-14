@@ -1,0 +1,13 @@
+sudo suricata -c /etc/suricata/suricata.yaml -i ens33
+
+sudo suricata -T -c /etc/suricata/suricata.yaml
+
+
+
+grep '"event_type":"alert"' /var/log/suricata/eve.json | jq '{
+  timestamp: .timestamp,
+  signature: .alert.signature,
+  severity: .alert.severity,
+  src_ip: .src_ip,
+  dest_ip: .dest_ip
+}'
