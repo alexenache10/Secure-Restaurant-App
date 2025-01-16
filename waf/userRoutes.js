@@ -35,6 +35,19 @@ router.get('/classic', verifyJWT, async (req, res) => {
     }
 });
 
+
+router.get('/test', async (req, res) => {
+    try {
+    
+        res.json('Test');
+    } catch (error) {
+        res.status(error.response ? error.response.status : 500).json({ message: error.message });
+    }
+});
+
+
+
+
 router.get('/data', verifyJWT, async (req, res) => {
     try {
         const response = await axios.get(`${BACKEND_BASE_URL}/api/my/user/data`, {
