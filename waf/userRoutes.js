@@ -3,7 +3,7 @@ import axios from 'axios';
 import { verifyJWT } from './middleware/verifyJWT.js';
 
 const router = express.Router();
-const BACKEND_BASE_URL = 'http://172.27.168.229:7000';
+const BACKEND_BASE_URL = 'http://192.168.149.174:7000';
 
 const sanitizeInput = (input) => {
     if (typeof input === 'string') {

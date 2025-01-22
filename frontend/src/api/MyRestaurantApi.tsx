@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const API_BACKEND = 'http://172.30.82.238:7000'
+const API_BACKEND = 'http://192.168.149.174:7000'
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("jwtToken");
